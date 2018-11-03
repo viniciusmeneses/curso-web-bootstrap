@@ -1,6 +1,15 @@
 // Importando o jQuery utilizando o sistema de modulos do JS
 import $ from 'jquery'
 
+const loadHtmlSuccessCallbakcs = []
+
+// Adiciona no array uma callback para ser chamada quando a página for carregada via AJAX totalmente
+export function onLoadHtmlSuccess(callback) {
+  if (!loadHtmlSuccessCallbakcs.includes(callback)) {
+    loadHtmlSuccessCallbakcs.push(callback)
+  }
+}
+
 function loadIncludes(parent = 'body') {
   // Procura nos filhos diretos elementos com a propriedade wm-include
   $(parent).find('[wm-include]').each((i, el) => {
@@ -14,6 +23,8 @@ function loadIncludes(parent = 'body') {
         $(el).html(data)
         $(el).removeAttr('wm-include')
 
+        // Executa todas as callbacks definidas a cada requisição AJAX
+        loadHtmlSuccessCallbakcs.forEach(callback => callback(data))
         // Chama novamente para verificar se existe outro wm-include dentro da página requisitada
         loadIncludes(el)
       }
